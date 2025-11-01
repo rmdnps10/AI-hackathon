@@ -77,7 +77,9 @@ export const initOAuth = async (
  */
 export const getGoogleOAuthUrl = (redirect_to?: string): string => {
   const params = redirect_to ? `?redirect_to=${redirect_to}` : "";
-  return `${api.defaults.baseURL}v1/auth/oauth/google${params}`;
+  // baseURL 끝 슬래시 유무에 상관없이 올바른 URL 생성
+  const base = (api.defaults.baseURL || "").replace(/\/$/, "");
+  return `${base}/v1/auth/oauth/google${params}`;
 };
 
 /**
@@ -85,7 +87,8 @@ export const getGoogleOAuthUrl = (redirect_to?: string): string => {
  */
 export const getLinkedInOAuthUrl = (redirect_to?: string): string => {
   const params = redirect_to ? `?redirect_to=${redirect_to}` : "";
-  return `${api.defaults.baseURL}/v1/auth/oauth/linkedin${params}`;
+  const base = (api.defaults.baseURL || "").replace(/\/$/, "");
+  return `${base}/v1/auth/oauth/linkedin${params}`;
 };
 
 /**

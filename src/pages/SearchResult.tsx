@@ -26,7 +26,6 @@ const suggestedOrganizations = [
 // 유머러스한 팁 목록
 const loadingTips = [
   "안 되네…? 어 되네…?",
-  "개발과정에서 테스트를 거치지 않은 코드가 완벽하게 작동할 때..",
   "git push --force 하니까 다 해결되던데요",
 ];
 
@@ -54,23 +53,38 @@ function SearchResult() {
     setCurrentTip(randomTip);
   }, [searchQuery]);
 
-  // 로딩 팁 타이핑 효과
+  // 로딩 팁 타이핑 효과 (천천히 + 중간 끊김 방지)
   useEffect(() => {
-    if (!isLoading || !currentTip) {
+    if (!currentTip) {
       setTypedTip("");
       return;
     }
+    // 로딩이 끝나면 타이핑을 멈추고 전체 문구를 보여줘 끊김 방지
+    if (!isLoading) {
+      setTypedTip(currentTip);
+      return;
+    }
+
     const chars = Array.from(currentTip);
     let i = 0;
+    let cancelled = false;
     setTypedTip("");
-    const timer = setInterval(() => {
-      setTypedTip((prev) => prev + (chars[i] ?? ""));
-      i += 1;
-      if (i >= chars.length) {
-        clearInterval(timer);
-      }
-    }, 35);
-    return () => clearInterval(timer);
+
+    const next = () => {
+      if (cancelled) return;
+      if (i >= chars.length) return;
+      const ch = chars[i++];
+      setTypedTip((prev) => prev + ch);
+      // 공백/문장부호에 약간의 지연을 줘서 더 자연스럽게
+      const delay = ch === " " ? 60 : /[,.!?…]/.test(ch) ? 260 : 95;
+      timer = window.setTimeout(next, delay);
+    };
+
+    let timer = window.setTimeout(next, 150);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [currentTip, isLoading]);
 
   // 검색어가 없으면 홈으로 리다이렉트
@@ -219,7 +233,15 @@ function SearchResult() {
                     subtitle={candidate.description}
                     tags={[...candidate.keywords.slice(0, 4)]}
                     description={candidate.skills.slice(0, 3).join(" · ")}
-                    matchPercentage={Math.round(candidate.fit_score * 100)}
+                    matchPercentage={(() => {
+                      const s = candidate.fit_score;
+                      if (s == null || Number.isNaN(s as number)) return 0;
+                      // 백엔드가 0~1 또는 0~100 스케일을 보낼 수 있어 양쪽을 지원
+                      const pct = s <= 1 ? s * 100 : s;
+                      // 안전한 반올림 + 클램프
+                      const rounded = Math.round(pct);
+                      return Math.max(0, Math.min(100, rounded));
+                    })()}
                   />
                 ))}
               </SimpleGrid>

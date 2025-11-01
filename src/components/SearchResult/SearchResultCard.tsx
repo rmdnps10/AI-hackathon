@@ -4,8 +4,7 @@ import { Flex } from "@chakra-ui/react/flex";
 import { Image } from "@chakra-ui/react/image";
 import { Text } from "@chakra-ui/react/text";
 
-const DEFAULT_AVATAR =
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=200&q=80";
+const DEFAULT_AVATAR = "https://picsum.photos/200"; // base path; add query to vary by seed
 
 type SearchResultCardProps = {
   name: string;
@@ -29,6 +28,11 @@ function SearchResultCard({
   onClick,
 }: SearchResultCardProps) {
   const safePercentage = clampPercentage(matchPercentage);
+  // 동일한 베이스 경로라도 쿼리값으로 리소스를 달리 인식시키기 위한 기본 아바타 URL
+  const defaultAvatarUrl = useMemo(() => {
+    const seed = encodeURIComponent(name || "anon");
+    return `${DEFAULT_AVATAR}?random=${seed}`;
+  }, [name]);
   const matchGradient = useMemo(() => {
     const angle = (safePercentage / 100) * 360;
     return `conic-gradient(#2563eb 0deg ${angle}deg, #e4e4e7 ${angle}deg 360deg)`;
@@ -49,7 +53,7 @@ function SearchResultCard({
     >
       <Box display="flex" alignItems="center" gap="12px">
         <Image
-          src={avatarUrl ?? DEFAULT_AVATAR}
+          src={avatarUrl ?? defaultAvatarUrl}
           alt={name}
           borderRadius="32px"
           boxSize="64px"
