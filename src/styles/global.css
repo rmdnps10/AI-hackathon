@@ -13,6 +13,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -23,10 +34,8 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  margin: 0 auto;
+  width: calc(100vw - 12px);
   min-height: 100vh;
 }
 
