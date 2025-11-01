@@ -222,7 +222,7 @@ function SearchResult() {
               </Text>
 
               <SimpleGrid
-                columns={{ base: 1, md: 2, xl: 3 }}
+                columns={{ base: 1, md: 2, xl: 2 }}
                 gap={{ base: "16px", md: "20px", xl: "24px" }}
               >
                 {searchResult?.candidates_top4.map((candidate) => (
@@ -233,6 +233,7 @@ function SearchResult() {
                     subtitle={candidate.description}
                     tags={[...candidate.keywords.slice(0, 4)]}
                     description={candidate.skills.slice(0, 3).join(" · ")}
+                    reason={candidate.reason_ko}
                     matchPercentage={(() => {
                       const s = candidate.fit_score;
                       if (s == null || Number.isNaN(s as number)) return 0;

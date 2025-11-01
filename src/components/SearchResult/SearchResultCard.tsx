@@ -11,6 +11,7 @@ type SearchResultCardProps = {
   subtitle: string;
   tags: string[];
   description: string;
+  reason?: string;
   matchPercentage: number;
   avatarUrl?: string;
   onClick: () => void;
@@ -23,6 +24,7 @@ function SearchResultCard({
   subtitle,
   tags,
   description,
+  reason,
   matchPercentage,
   avatarUrl,
   onClick,
@@ -97,6 +99,12 @@ function SearchResultCard({
           </Box>
         ))}
       </Box>
+
+      {reason && (
+        <Text fontSize="sm" color="gray.700" lineHeight="22px">
+          {reason}
+        </Text>
+      )}
 
       <Text fontSize="sm" color="gray.600" lineHeight="22px">
         {description}
