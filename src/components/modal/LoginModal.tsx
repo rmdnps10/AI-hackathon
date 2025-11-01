@@ -8,10 +8,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import { useSignIn } from "../../hooks/useAuth";
-import { getGoogleOAuthUrl } from "../../api/auth";
 import { isAxiosError } from "axios";
 
-import googleIcon from "../../assets/google.svg";
 import mailIcon from "../../assets/mail.svg";
 
 type LoginModalProps = {
@@ -41,17 +39,12 @@ function LoginModal({ isOpen, onOpenSignUp }: LoginModalProps) {
     signInMutation.mutate({ email, password });
   };
 
-  const handleGoogleLogin = () => {
-    if (typeof window === "undefined") return;
-    // redirect_to 파라미터 없이 백엔드가 자동으로 처리하도록 함
-    window.location.href = getGoogleOAuthUrl();
-  };
+  // Google 로그인 버튼 제거
 
   const headingText = "로그인";
   const descriptionText = "Gandalf 이용을 위해서 계정에 로그인해주세요.";
   const primaryButtonText = "이메일로 로그인하기";
-  const socialCaption = "또는 소셜 계정으로 계속하기";
-  const googleButtonText = "Google로 계속하기";
+  // 소셜 로그인 제거
 
   const primaryErrorMessage = signInMutation.isError
     ? getErrorMessage(
@@ -166,38 +159,7 @@ function LoginModal({ isOpen, onOpenSignUp }: LoginModalProps) {
             </VStack>
           </form>
 
-          <Box position="relative" textAlign="center" py="6px">
-            <Box h="1px" w="100%" bg="gray.200" />
-            <Text
-              position="absolute"
-              top="50%"
-              left="50%"
-              transform="translate(-50%, -50%)"
-              px="8px"
-              bg="white"
-              fontSize="xs"
-              color="gray.500"
-            >
-              {socialCaption}
-            </Text>
-          </Box>
-
-          <Button
-            type="button"
-            variant="outline"
-            bg="#ffffff"
-            borderColor="#e5e7eb"
-            color="#111827"
-            height="44px"
-            borderRadius="md"
-            _hover={{ bg: "#f9fafb" }}
-            onClick={handleGoogleLogin}
-            gap="8px"
-            fontSize="sm"
-          >
-            <Image src={googleIcon} alt="Google" boxSize="18px" />
-            {googleButtonText}
-          </Button>
+          {/* 소셜 로그인 옵션 제거됨 */}
 
           <Box textAlign="center" pt="8px">
             <Text fontSize="xs" color="gray.500" mb="8px">

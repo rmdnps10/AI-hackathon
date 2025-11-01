@@ -7,10 +7,8 @@ import { Image } from "@chakra-ui/react/image";
 import { useState } from "react";
 import styled from "@emotion/styled";
 import { useSignIn, useSignUp } from "../../hooks/useAuth";
-import { getGoogleOAuthUrl } from "../../api/auth";
 import { isAxiosError } from "axios";
 
-import googleIcon from "../../assets/google.svg";
 import mailIcon from "../../assets/mail.svg";
 
 type SignUpModalProps = {
@@ -60,11 +58,7 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
     }
   };
 
-  const handleGoogle = () => {
-    if (typeof window === "undefined") return;
-    // redirect_to 파라미터 없이 백엔드가 자동으로 처리하도록 함
-    window.location.href = getGoogleOAuthUrl();
-  };
+  // Google 회원가입 버튼 제거
 
   const signUpErrorMessage = signUpMutation.isError
     ? getErrorMessage(
@@ -217,22 +211,7 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
             </VStack>
           </form>
 
-          <Button
-            type="button"
-            variant="outline"
-            bg="#ffffff"
-            borderColor="#e5e7eb"
-            color="#111827"
-            height="44px"
-            borderRadius="md"
-            _hover={{ bg: "#f9fafb" }}
-            onClick={handleGoogle}
-            gap="8px"
-            fontSize="sm"
-          >
-            <Image src={googleIcon} alt="Google" boxSize="18px" />
-            Google로 가입하기
-          </Button>
+          {/* 소셜 회원가입 옵션 제거됨 */}
 
           <Box
             display="flex"
