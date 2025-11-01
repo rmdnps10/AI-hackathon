@@ -1,18 +1,68 @@
+import type { ReactElement } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import SearchScreen from "./pages/SearchHome";
 import SearchResult from "./pages/SearchResult";
 import SearchDetailProfile from "./pages/SearchDetailProfile";
+import ServiceIntroduce from "./pages/ServiceIntroduce";
+import MyPage from "./pages/MyPage";
+
+type ProtectedRouteProps = {
+  children: ReactElement;
+};
+
+function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const isAuthenticated =
+    typeof window !== "undefined" &&
+    Boolean(localStorage.getItem("access_token"));
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
 
 function App() {
   return (
     <Routes>
       {/* 메인 검색 화면 */}
       <Route path="/" element={<SearchScreen />} />
+      <Route
+        path="/introduce"
+        element={
+          <ProtectedRoute>
+            <ServiceIntroduce />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/search-result" element={<SearchResult />} />
+      <Route
+        path="/search-result"
+        element={
+          <ProtectedRoute>
+            <SearchResult />
+          </ProtectedRoute>
+        }
+      />
 
       {/* 검색 상세 프로필 */}
-      <Route path="/search-detail" element={<SearchDetailProfile />} />
+      <Route
+        path="/search-detail"
+        element={
+          <ProtectedRoute>
+            <SearchDetailProfile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/my-page"
+        element={
+          <ProtectedRoute>
+            <MyPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* 404 - 메인으로 리다이렉트 */}
       <Route path="*" element={<Navigate to="/" replace />} />

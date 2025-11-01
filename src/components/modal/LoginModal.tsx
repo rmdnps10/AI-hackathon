@@ -1,0 +1,234 @@
+import { Box } from "@chakra-ui/react/box";
+import { Button } from "@chakra-ui/react/button";
+import { Heading } from "@chakra-ui/react/heading";
+import { VStack } from "@chakra-ui/react/stack";
+import { Text } from "@chakra-ui/react/text";
+import { Image } from "@chakra-ui/react/image";
+import { useState } from "react";
+import styled from "@emotion/styled";
+import { useSignIn } from "../../hooks/useAuth";
+import { getGoogleOAuthUrl } from "../../api/auth";
+import { isAxiosError } from "axios";
+
+import googleIcon from "../../assets/google.svg";
+import mailIcon from "../../assets/mail.svg";
+
+type LoginModalProps = {
+  isOpen: boolean;
+  onOpenSignUp: () => void;
+};
+
+function LoginModal({ isOpen, onOpenSignUp }: LoginModalProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const signInMutation = useSignIn();
+
+  const getErrorMessage = (error: unknown, fallback: string) => {
+    if (isAxiosError(error)) {
+      const data = error.response?.data as { message?: string } | undefined;
+      if (data?.message) return data.message;
+    }
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return fallback;
+  };
+
+  const handleLoginSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    signInMutation.mutate({ email, password });
+  };
+
+  const handleGoogleLogin = () => {
+    if (typeof window === "undefined") return;
+    window.location.href = getGoogleOAuthUrl(window.location.origin);
+  };
+
+  const headingText = "로그인";
+  const descriptionText =
+    "개인화된 검색 결과를 받기 위해서 계정에 로그인해주세요.";
+  const primaryButtonText = "이메일로 로그인하기";
+  const socialCaption = "또는 소셜 계정으로 계속하기";
+  const googleButtonText = "Google로 계속하기";
+
+  const primaryErrorMessage = signInMutation.isError
+    ? getErrorMessage(
+        signInMutation.error,
+        "로그인에 실패했습니다. 다시 시도해주세요."
+      )
+    : null;
+
+  if (!isOpen) return null;
+
+  return (
+    <Box
+      position="fixed"
+      inset="0"
+      bg="rgba(15, 23, 42, 0.65)"
+      backdropFilter="blur(6px)"
+      zIndex={1000}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      px={{ base: "16px", md: "0" }}
+    >
+      <Box
+        w="100%"
+        maxW="420px"
+        bg="white"
+        borderRadius="24px"
+        p={{ base: "24px", md: "32px" }}
+        boxShadow="0 24px 80px rgba(15, 23, 42, 0.15)"
+      >
+        <Heading
+          as="h2"
+          fontSize={{ base: "22px", md: "24px" }}
+          fontWeight="700"
+          color="gray.900"
+          fontFamily="'SUITE Variable', 'Inter', sans-serif"
+          mb="20px"
+        >
+          {headingText}
+        </Heading>
+        <VStack align="stretch" gap="20px">
+          <Text fontSize="sm" color="gray.600">
+            {descriptionText}
+          </Text>
+
+          <form onSubmit={handleLoginSubmit} style={{ width: "100%" }}>
+            <VStack gap="12px" align="stretch">
+              <VStack align="start" gap="3px">
+                <Label htmlFor="login-email">이메일</Label>
+                <InputField
+                  id="login-email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                />
+              </VStack>
+
+              <VStack align="start" gap="3px">
+                <Label htmlFor="login-password">비밀번호</Label>
+                <InputField
+                  id="login-password"
+                  type="password"
+                  placeholder="********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+              </VStack>
+
+              {primaryErrorMessage && (
+                <Text fontSize="sm" color="red.500">
+                  {primaryErrorMessage}
+                </Text>
+              )}
+
+              <Button
+                type="submit"
+                height="44px"
+                borderRadius="md"
+                bg="gray.900"
+                color="white"
+                fontSize="sm"
+                fontWeight="600"
+                _hover={{ bg: "gray.800" }}
+                loading={signInMutation.isPending}
+                loadingText="로그인 중"
+                spinnerPlacement="end"
+                gap="8px"
+                mt="10px"
+              >
+                <Image src={mailIcon} alt="이메일 로그인" boxSize="18px" />
+                {primaryButtonText}
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                color="gray.600"
+                fontSize="sm"
+                fontWeight="500"
+                onClick={onOpenSignUp}
+                _hover={{ bg: "gray.100" }}
+              >
+                회원가입
+              </Button>
+            </VStack>
+          </form>
+
+          <Box position="relative" textAlign="center" py="6px">
+            <Box h="1px" w="100%" bg="gray.200" />
+            <Text
+              position="absolute"
+              top="50%"
+              left="50%"
+              transform="translate(-50%, -50%)"
+              px="8px"
+              bg="white"
+              fontSize="xs"
+              color="gray.500"
+            >
+              {socialCaption}
+            </Text>
+          </Box>
+
+          <Button
+            type="button"
+            variant="outline"
+            borderColor="gray.200"
+            height="44px"
+            borderRadius="md"
+            _hover={{ bg: "gray.50" }}
+            onClick={handleGoogleLogin}
+            gap="8px"
+            fontSize="sm"
+          >
+            <Image src={googleIcon} alt="Google" boxSize="18px" />
+            {googleButtonText}
+          </Button>
+        </VStack>
+      </Box>
+    </Box>
+  );
+}
+
+const InputField = styled.input`
+  width: 100%;
+  padding: 10px 12px;
+  background-color: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  color: black;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #ddd6fe;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #c4b5fd;
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.3);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+`;
+
+const Label = styled.label`
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: block;
+`;
+
+export default LoginModal;
