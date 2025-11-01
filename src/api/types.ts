@@ -1,6 +1,7 @@
 // API Types based on OpenAPI spec
 
 export interface SignUpRequest {
+  name: string;
   email: string;
   password: string;
 }
@@ -79,4 +80,39 @@ export interface SearchRequest {
 
 export interface PersonaResponse {
   persona: Persona;
+}
+
+// 실제 검색 결과 타입
+export interface CardCell {
+  name: string;
+  value: string;
+}
+
+export interface CardDataRow {
+  cells: CardCell[];
+}
+
+export interface CandidateCard {
+  name: string;
+  type: "table" | "text";
+  data: CardDataRow[] | string;
+}
+
+export interface Candidate {
+  id: number;
+  name: string;
+  description: string;
+  keywords: string[];
+  skills: string[];
+  cards: CandidateCard[];
+  fit_score: number;
+  reason_ko: string;
+  email: string;
+  created_at: string;
+}
+
+export interface SearchResultResponse {
+  query_summary: string;
+  candidates_top4: Candidate[];
+  latency_ms: number;
 }

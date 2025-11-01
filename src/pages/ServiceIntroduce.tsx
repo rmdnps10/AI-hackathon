@@ -93,8 +93,8 @@ function ServiceIntroduce() {
               color="gray.400"
               lineHeight="1.6"
             >
-              AI 기반 자연어 검색으로 대학 커뮤니티 내 최적의 인재를 빠르게
-              찾아보세요
+              AI 기반 자연어 검색으로 커뮤니티 내에서 <br />
+              당신이 만나고 싶은 사람을 빠르게 만나보세요.
             </Text>
 
             <HStack gap={4} mt={8}>
@@ -133,7 +133,7 @@ function ServiceIntroduce() {
               fontFamily="'SUITE Variable', 'Inter', sans-serif"
               letterSpacing="-0.02em"
             >
-              왜 Talent Pool인가요?
+              왜 Gandalf 인가요?
             </Heading>
           </VStack>
 

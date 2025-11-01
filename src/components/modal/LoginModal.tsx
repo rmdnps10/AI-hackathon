@@ -5,6 +5,7 @@ import { VStack } from "@chakra-ui/react/stack";
 import { Text } from "@chakra-ui/react/text";
 import { Image } from "@chakra-ui/react/image";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import { useSignIn } from "../../hooks/useAuth";
 import { getGoogleOAuthUrl } from "../../api/auth";
@@ -22,6 +23,7 @@ function LoginModal({ isOpen, onOpenSignUp }: LoginModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const signInMutation = useSignIn();
+  const navigate = useNavigate();
 
   const getErrorMessage = (error: unknown, fallback: string) => {
     if (isAxiosError(error)) {
@@ -41,12 +43,12 @@ function LoginModal({ isOpen, onOpenSignUp }: LoginModalProps) {
 
   const handleGoogleLogin = () => {
     if (typeof window === "undefined") return;
-    window.location.href = getGoogleOAuthUrl(window.location.origin);
+    // redirect_to 파라미터 없이 백엔드가 자동으로 처리하도록 함
+    window.location.href = getGoogleOAuthUrl();
   };
 
   const headingText = "로그인";
-  const descriptionText =
-    "개인화된 검색 결과를 받기 위해서 계정에 로그인해주세요.";
+  const descriptionText = "Gandalf 이용을 위해서 계정에 로그인해주세요.";
   const primaryButtonText = "이메일로 로그인하기";
   const socialCaption = "또는 소셜 계정으로 계속하기";
   const googleButtonText = "Google로 계속하기";
@@ -133,11 +135,11 @@ function LoginModal({ isOpen, onOpenSignUp }: LoginModalProps) {
                 type="submit"
                 height="44px"
                 borderRadius="md"
-                bg="gray.900"
-                color="white"
+                bg="#111827"
+                color="#ffffff"
                 fontSize="sm"
                 fontWeight="600"
-                _hover={{ bg: "gray.800" }}
+                _hover={{ bg: "#1f2937" }}
                 loading={signInMutation.isPending}
                 loadingText="로그인 중"
                 spinnerPlacement="end"
@@ -150,12 +152,14 @@ function LoginModal({ isOpen, onOpenSignUp }: LoginModalProps) {
 
               <Button
                 type="button"
-                variant="ghost"
-                color="gray.600"
+                height="40px"
+                bg="#f3f4f6"
+                color="#374151"
                 fontSize="sm"
                 fontWeight="500"
+                borderRadius="md"
                 onClick={onOpenSignUp}
-                _hover={{ bg: "gray.100" }}
+                _hover={{ bg: "#e5e7eb" }}
               >
                 회원가입
               </Button>
@@ -181,10 +185,12 @@ function LoginModal({ isOpen, onOpenSignUp }: LoginModalProps) {
           <Button
             type="button"
             variant="outline"
-            borderColor="gray.200"
+            bg="#ffffff"
+            borderColor="#e5e7eb"
+            color="#111827"
             height="44px"
             borderRadius="md"
-            _hover={{ bg: "gray.50" }}
+            _hover={{ bg: "#f9fafb" }}
             onClick={handleGoogleLogin}
             gap="8px"
             fontSize="sm"
@@ -192,6 +198,24 @@ function LoginModal({ isOpen, onOpenSignUp }: LoginModalProps) {
             <Image src={googleIcon} alt="Google" boxSize="18px" />
             {googleButtonText}
           </Button>
+
+          <Box textAlign="center" pt="8px">
+            <Text fontSize="xs" color="gray.500" mb="8px">
+              Gandalf가 처음이신가요?
+            </Text>
+            <Button
+              type="button"
+              variant="ghost"
+              bg="transparent"
+              fontSize="sm"
+              color="#6366f1"
+              fontWeight="600"
+              onClick={() => navigate("/introduce")}
+              _hover={{ bg: "#f5f3ff", color: "#4f46e5" }}
+            >
+              서비스 소개 보기 →
+            </Button>
+          </Box>
         </VStack>
       </Box>
     </Box>

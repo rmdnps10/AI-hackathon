@@ -77,7 +77,7 @@ export const initOAuth = async (
  */
 export const getGoogleOAuthUrl = (redirect_to?: string): string => {
   const params = redirect_to ? `?redirect_to=${redirect_to}` : "";
-  return `${api.defaults.baseURL}/v1/auth/oauth/google${params}`;
+  return `${api.defaults.baseURL}v1/auth/oauth/google${params}`;
 };
 
 /**

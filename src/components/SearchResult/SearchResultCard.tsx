@@ -54,10 +54,11 @@ function SearchResultCard({
           borderRadius="32px"
           boxSize="64px"
           objectFit="cover"
+          flexShrink={0}
           border="1px solid"
           borderColor="#f4f4f5"
         />
-        <Box>
+        <Box flex="1" minWidth="0">
           <Text fontWeight="600" fontSize="18px" color="gray.900">
             {name}
           </Text>

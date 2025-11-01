@@ -19,8 +19,11 @@ type SignUpModalProps = {
 };
 
 function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [passwordMismatch, setPasswordMismatch] = useState(false);
   const signUpMutation = useSignUp();
   const signInMutation = useSignIn();
 
@@ -38,8 +41,16 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // 비밀번호 확인 검증
+    if (password !== passwordConfirm) {
+      setPasswordMismatch(true);
+      return;
+    }
+
+    setPasswordMismatch(false);
+
     try {
-      await signUpMutation.mutateAsync({ email, password });
+      await signUpMutation.mutateAsync({ name, email, password });
       await signInMutation.mutateAsync({ email, password });
     } catch (error) {
       // 에러 메시지는 각각의 mutation 상태에서 렌더링됨
@@ -51,7 +62,8 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
 
   const handleGoogle = () => {
     if (typeof window === "undefined") return;
-    window.location.href = getGoogleOAuthUrl(window.location.origin);
+    // redirect_to 파라미터 없이 백엔드가 자동으로 처리하도록 함
+    window.location.href = getGoogleOAuthUrl();
   };
 
   const signUpErrorMessage = signUpMutation.isError
@@ -71,8 +83,11 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
   const handleBackToLogin = () => {
     signUpMutation.reset();
     signInMutation.reset();
+    setName("");
     setEmail("");
     setPassword("");
+    setPasswordConfirm("");
+    setPasswordMismatch(false);
     onBackToLogin();
   };
 
@@ -110,12 +125,24 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
           </Heading>
 
           <Text fontSize="sm" color="gray.600" lineHeight="1.6">
-            Gandalf 에 가입하고 커뮤니티 구성원의 프로필을 탐색해보세요. 가입
-            즉시 개인화된 검색을 이용할 수 있어요.
+            Gandalf 에 가입하고 커뮤니티 구성원의 프로필을 탐색해보세요.
           </Text>
 
           <form onSubmit={handleSubmit} style={{ width: "100%" }}>
             <VStack gap="12px" align="stretch">
+              <VStack align="start" gap="3px">
+                <FieldLabel htmlFor="signup-name">이름</FieldLabel>
+                <InputField
+                  id="signup-name"
+                  type="text"
+                  placeholder="홍길동"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                  autoComplete="name"
+                />
+              </VStack>
+
               <VStack align="start" gap="3px">
                 <FieldLabel htmlFor="signup-email">이메일</FieldLabel>
                 <InputField
@@ -142,6 +169,27 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
                 />
               </VStack>
 
+              <VStack align="start" gap="3px">
+                <FieldLabel htmlFor="signup-password-confirm">
+                  비밀번호 확인
+                </FieldLabel>
+                <InputField
+                  id="signup-password-confirm"
+                  type="password"
+                  placeholder="비밀번호를 다시 입력해주세요"
+                  value={passwordConfirm}
+                  onChange={(event) => setPasswordConfirm(event.target.value)}
+                  required
+                  autoComplete="new-password"
+                />
+              </VStack>
+
+              {passwordMismatch && (
+                <Text fontSize="sm" color="red.500">
+                  비밀번호가 일치하지 않습니다.
+                </Text>
+              )}
+
               {(signUpErrorMessage || signInErrorMessage) && (
                 <Text fontSize="sm" color="red.500">
                   {signUpErrorMessage || signInErrorMessage}
@@ -152,11 +200,11 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
                 type="submit"
                 height="44px"
                 borderRadius="md"
-                bg="gray.900"
-                color="white"
+                bg="#111827"
+                color="#ffffff"
                 fontSize="sm"
                 fontWeight="600"
-                _hover={{ bg: "gray.800" }}
+                _hover={{ bg: "#1f2937" }}
                 loading={signUpMutation.isPending || signInMutation.isPending}
                 loadingText={signInMutation.isPending ? "로그인 중" : "가입 중"}
                 spinnerPlacement="end"
@@ -169,31 +217,18 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
             </VStack>
           </form>
 
-          <Box position="relative" textAlign="center" py="6px">
-            <Box h="1px" w="100%" bg="gray.200" />
-            <Text
-              position="absolute"
-              top="50%"
-              left="50%"
-              transform="translate(-50%, -50%)"
-              px="8px"
-              bg="white"
-              fontSize="xs"
-              color="gray.500"
-            >
-              또는 소셜 계정으로 가입하기
-            </Text>
-          </Box>
-
           <Button
             type="button"
             variant="outline"
-            borderColor="gray.200"
+            bg="#ffffff"
+            borderColor="#e5e7eb"
+            color="#111827"
             height="44px"
             borderRadius="md"
-            _hover={{ bg: "gray.50" }}
+            _hover={{ bg: "#f9fafb" }}
             onClick={handleGoogle}
             gap="8px"
+            fontSize="sm"
           >
             <Image src={googleIcon} alt="Google" boxSize="18px" />
             Google로 가입하기
@@ -211,10 +246,11 @@ function SignUpModal({ isOpen, onBackToLogin }: SignUpModalProps) {
             <Button
               type="button"
               variant="ghost"
+              bg="transparent"
               fontSize="sm"
-              color="gray.700"
+              color="#374151"
               onClick={handleBackToLogin}
-              _hover={{ bg: "gray.100" }}
+              _hover={{ bg: "#f3f4f6" }}
             >
               로그인 화면으로 돌아가기
             </Button>

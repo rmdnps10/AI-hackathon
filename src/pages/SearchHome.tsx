@@ -7,7 +7,7 @@ import { Text } from "@chakra-ui/react/text";
 import { Textarea } from "@chakra-ui/react/textarea";
 import { Wrap, WrapItem } from "@chakra-ui/react/wrap";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import StyledSelect from "../components/common/StyledSelect";
 import { useTypingEffect } from "../hooks/useTypingEffect";
 import { useIsAuthenticated } from "../hooks/useAuth";
@@ -18,6 +18,10 @@ import scanSearchIcon from "../assets/scan-search.svg";
 import userIcon from "../assets/user.svg";
 import { Image } from "@chakra-ui/react/image";
 
+//
+//
+//
+
 const suggestedSearches = [
   "플래닛 검색 솔루션 개발했던 사람",
   "인플루언서",
@@ -26,12 +30,17 @@ const suggestedSearches = [
   "대륙동향",
 ];
 
+//
+//
+//
+
 function SearchHome() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { isAuthenticated } = useIsAuthenticated();
+  const { isAuthenticated, isLoading } = useIsAuthenticated();
 
   const { displayedText } = useTypingEffect({
     text: "어떤 사람을 찾아볼까요?",
@@ -46,8 +55,10 @@ function SearchHome() {
   ];
 
   const handleSearch = () => {
-    if (!isAuthenticated) return;
-    navigate("/search-result");
+    if (!isAuthenticated || !searchQuery.trim()) return;
+
+    // 쿼리 파라미터로 검색어를 전달하면서 페이지 이동
+    navigate(`/search-result?q=${encodeURIComponent(searchQuery.trim())}`);
   };
 
   const handleSuggestedSearchClick = (searchText: string) => {
@@ -66,6 +77,13 @@ function SearchHome() {
       setIsSignUpOpen(false);
     }
   }, [isAuthenticated, isSignUpOpen]);
+
+  // Textarea 자동 포커스
+  useEffect(() => {
+    if (isAuthenticated && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isAuthenticated]);
 
   return (
     <>
@@ -123,15 +141,17 @@ function SearchHome() {
 
             <Box>
               <Textarea
-                placeholder="Hello"
+                ref={textareaRef}
+                placeholder="Hello, World!"
                 bg="#fafafa"
                 border="1px solid"
+                padding={"14px 20px"}
                 borderColor="gray.200"
                 borderRadius="8px"
                 width="100%"
                 minH={{ base: "160px", md: "136px" }}
                 resize="none"
-                fontSize={{ base: "sm", md: "sm" }}
+                fontSize="16px"
                 color="black"
                 boxShadow="0 6px 18px rgba(15, 23, 42, 0.06)"
                 transition="box-shadow 200ms, border-color 200ms"
@@ -168,7 +188,7 @@ function SearchHome() {
                     boxShadow: "0 6px 16px rgba(15, 23, 42, 0.08)",
                   }}
                   onClick={handleSearch}
-                  disabled={!isAuthenticated}
+                  disabled={!isAuthenticated || !searchQuery.trim()}
                 >
                   검색
                   <Image src={scanSearchIcon} alt="검색" ml="8px" />
@@ -211,11 +231,11 @@ function SearchHome() {
       </Box>
 
       <LoginModal
-        isOpen={!isAuthenticated && !isSignUpOpen}
+        isOpen={!isLoading && !isAuthenticated && !isSignUpOpen}
         onOpenSignUp={() => setIsSignUpOpen(true)}
       />
       <SignUpModal
-        isOpen={!isAuthenticated && isSignUpOpen}
+        isOpen={!isLoading && !isAuthenticated && isSignUpOpen}
         onBackToLogin={() => setIsSignUpOpen(false)}
       />
     </>

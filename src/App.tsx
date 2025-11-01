@@ -1,25 +1,25 @@
 import type { ReactElement } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useIsAuthenticated } from "./hooks/useAuth";
 import SearchScreen from "./pages/SearchHome";
 import SearchResult from "./pages/SearchResult";
 import SearchDetailProfile from "./pages/SearchDetailProfile";
 import ServiceIntroduce from "./pages/ServiceIntroduce";
 import MyPage from "./pages/MyPage";
+import OAuthCallback from "./pages/OAuthCallback";
 
 type ProtectedRouteProps = {
   children: ReactElement;
 };
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const isAuthenticated =
-    typeof window !== "undefined" &&
-    Boolean(localStorage.getItem("access_token"));
+  const { isAuthenticated } = useIsAuthenticated();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+  if (isAuthenticated) {
+    return children;
   }
 
-  return children;
+  return <Navigate to="/" replace />;
 }
 
 function App() {
@@ -27,14 +27,10 @@ function App() {
     <Routes>
       {/* 메인 검색 화면 */}
       <Route path="/" element={<SearchScreen />} />
-      <Route
-        path="/introduce"
-        element={
-          <ProtectedRoute>
-            <ServiceIntroduce />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/introduce" element={<ServiceIntroduce />} />
+
+      {/* OAuth 콜백 (인증 불필요) */}
+      <Route path="/auth/callback" element={<OAuthCallback />} />
 
       <Route
         path="/search-result"
