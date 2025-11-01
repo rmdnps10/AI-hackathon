@@ -26,7 +26,7 @@ const suggestedOrganizations = [
 // 유머러스한 팁 목록
 const loadingTips = [
   "안 되네…? 어 되네…?",
-  "'git push --force 하니까 다 해결되던라고요..' '뭐? 그게 무슨 말이야?'",
+  "'git push --force 하니까 다 해결되던데요..' '....?'",
 ];
 
 function SearchResult() {
