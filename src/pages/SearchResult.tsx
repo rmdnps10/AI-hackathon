@@ -10,8 +10,8 @@ import StyledSelect from "../components/common/StyledSelect";
 import { Image } from "@chakra-ui/react/image";
 import searchIcon from "../assets/search.svg";
 import SearchResultCard from "../components/SearchResult/SearchResultCard";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useSearch } from "../hooks/useSearch";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchQuery } from "../hooks/useSearchQuery";
 
 //
 //
@@ -25,37 +25,53 @@ const suggestedOrganizations = [
 
 // 유머러스한 팁 목록
 const loadingTips = [
-  "ㅈ ㅣ ㅂ ㅇ ㅔ ㄱ ㅏ ㄱ ㅗ ㅅ ㅣ ㅍ ㄷ ㅏ",
-  "올라잇 삼창돌격!!",
-  "",
+  "안 되네…? 어 되네…?",
+  "개발과정에서 테스트를 거치지 않은 코드가 완벽하게 작동할 때..",
+  "git push --force 하니까 다 해결되던데요",
 ];
 
 function SearchResult() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const searchMutation = useSearch();
+  const [searchParams] = useSearchParams();
   const [currentTip, setCurrentTip] = useState("");
+  const [typedTip, setTypedTip] = useState("");
 
-  // SearchHome에서 전달받은 검색어
-  const { searchQuery } = (location.state || {}) as {
-    searchQuery?: string;
-  };
+  // URL 쿼리 파라미터에서 검색어 가져오기
+  const searchQuery = searchParams.get("q");
 
-  // 컴포넌트 마운트 시 랜덤 팁 선택 및 API 호출
+  // Query 기반 검색 (캐시 유지)
+  const {
+    data: searchResult,
+    isLoading,
+    isError,
+  } = useSearchQuery({ query_text: searchQuery ?? "", org_context: null });
+
+  // 컴포넌트 마운트 시 랜덤 팁 선택
   useEffect(() => {
     if (!searchQuery) return;
-
     const randomTip =
       loadingTips[Math.floor(Math.random() * loadingTips.length)];
     setCurrentTip(randomTip);
-
-    // API 호출
-    searchMutation.mutate({
-      query_text: searchQuery,
-      org_context: null,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
+
+  // 로딩 팁 타이핑 효과
+  useEffect(() => {
+    if (!isLoading || !currentTip) {
+      setTypedTip("");
+      return;
+    }
+    const chars = Array.from(currentTip);
+    let i = 0;
+    setTypedTip("");
+    const timer = setInterval(() => {
+      setTypedTip((prev) => prev + (chars[i] ?? ""));
+      i += 1;
+      if (i >= chars.length) {
+        clearInterval(timer);
+      }
+    }, 35);
+    return () => clearInterval(timer);
+  }, [currentTip, isLoading]);
 
   // 검색어가 없으면 홈으로 리다이렉트
   useEffect(() => {
@@ -75,9 +91,7 @@ function SearchResult() {
     });
   };
 
-  const isLoading = searchMutation.isPending;
-  const searchResult = searchMutation.data;
-  const isError = searchMutation.isError;
+  // isLoading은 최초 로딩, isFetching은 배경 리패치 상태
 
   // 에러 처리
   if (isError) {
@@ -137,8 +151,9 @@ function SearchResult() {
                 color="gray.700"
                 fontWeight="500"
                 textAlign="center"
+                aria-live="polite"
               >
-                {currentTip}
+                {typedTip}
               </Text>
             </Box>
           )}

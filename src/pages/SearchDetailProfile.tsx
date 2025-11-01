@@ -123,7 +123,7 @@ function SearchDetailProfile() {
               키워드
             </Text>
             <Flex gap={2} flexWrap="wrap">
-              {candidate.keywords.map((keyword, index) => (
+              {(candidate.keywords ?? []).map((keyword, index) => (
                 <Badge
                   key={index}
                   px={3}
@@ -151,7 +151,7 @@ function SearchDetailProfile() {
               스킬
             </Text>
             <Flex gap={2} flexWrap="wrap">
-              {candidate.skills.map((skill, index) => (
+              {(candidate.skills ?? []).map((skill, index) => (
                 <Badge
                   key={index}
                   px={3}
@@ -168,7 +168,7 @@ function SearchDetailProfile() {
           </Box>
 
           {/* 동적 데이터 렌더링 (cards) */}
-          {candidate.cards.map((card, index) => (
+          {(candidate.cards ?? []).map((card, index) => (
             <DynamicProfileSection
               key={index}
               item={convertToProfileDataItem(card)}

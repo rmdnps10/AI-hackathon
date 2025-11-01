@@ -27,7 +27,7 @@ export default function DynamicProfileSection({
           {item.name}
         </Text>
         <Text fontSize="sm" color="gray.700" lineHeight="24px">
-          {item.data}
+          {item.data ?? ""}
         </Text>
       </Box>
     );
@@ -35,23 +35,28 @@ export default function DynamicProfileSection({
 
   // Table 타입
   if (item.type === "table") {
-    // ProfileDataTable 형식으로 변환
-    const rows = item.data.map((row) => {
-      const rowData: Record<string, string> = {};
-      row.cells.forEach((cell) => {
-        rowData[cell.name] = cell.value;
-      });
+    // 테이블 헤더를 API의 cells.name에서 유도
+    const firstCells = item.data?.[0]?.cells ?? [];
+    const headerPeriod = firstCells[0]?.name ?? "기간";
+    const headerOrganization = firstCells[1]?.name ?? "소속";
+    const headerContent = firstCells[2]?.name ?? "내용";
 
-      // 첫 번째 cell을 period, 두 번째를 organization, 나머지를 content로 매핑
-      const cells = row.cells;
-      return {
-        period: cells[0]?.value || "",
-        organization: cells[1]?.value || "",
-        content: cells
-          .slice(2)
-          .map((c) => `${c.name}: ${c.value}`)
-          .join(", "),
-      };
+    // ProfileDataTable 형식으로 변환 (안전 가드 포함)
+    const rows = (item.data ?? []).map((row) => {
+      const cells = row?.cells ?? [];
+      const period = cells[0]?.value ?? "";
+      const organization = cells[1]?.value ?? "";
+      const content = cells
+        .slice(2)
+        .map((c) => {
+          const n = c?.name ?? "";
+          const v = c?.value ?? "";
+          return n && v ? `${n}: ${v}` : v || n;
+        })
+        .filter((s) => (s ?? "").toString().trim().length > 0)
+        .join("\n");
+
+      return { period, organization, content };
     });
 
     return (
@@ -65,7 +70,14 @@ export default function DynamicProfileSection({
         >
           {item.name}
         </Text>
-        <ProfileDataTable rows={rows} />
+        <ProfileDataTable
+          rows={rows}
+          headers={{
+            period: headerPeriod,
+            organization: headerOrganization,
+            content: headerContent,
+          }}
+        />
       </Box>
     );
   }
@@ -84,10 +96,10 @@ export default function DynamicProfileSection({
           {item.name}
         </Text>
         <HStack gap={2} flexWrap="wrap">
-          {item.data.map((badge, index) => (
+          {(item.data ?? []).map((badge, index) => (
             <Link
               key={index}
-              href={badge.link}
+              href={badge?.link ?? "#"}
               target="_blank"
               rel="noopener noreferrer"
               _hover={{ textDecoration: "none" }}
@@ -101,7 +113,7 @@ export default function DynamicProfileSection({
                 cursor="pointer"
                 _hover={{ bg: "blue.600" }}
               >
-                {badge.name}
+                {badge?.name ?? ""}
               </Badge>
             </Link>
           ))}
@@ -124,17 +136,17 @@ export default function DynamicProfileSection({
           {item.name}
         </Text>
         <VStack align="stretch" gap={2}>
-          {item.data.map((link, index) => (
+          {(item.data ?? []).map((link, index) => (
             <Link
               key={index}
-              href={link.href}
+              href={link?.href ?? "#"}
               target="_blank"
               rel="noopener noreferrer"
               fontSize="sm"
               color="blue.600"
               _hover={{ color: "blue.700", textDecoration: "underline" }}
             >
-              🔗 {link.name}
+              🔗 {link?.name ?? ""}
             </Link>
           ))}
         </VStack>

@@ -24,7 +24,7 @@ import { Image } from "@chakra-ui/react/image";
 
 const suggestedSearches = [
   "플래닛 검색 솔루션 개발했던 사람",
-  "인플루언서",
+  "백엔드 개발에 열의가 있는 사람",
   "코딩없이 디자인을 깊이 다룰 줄 아는 사람",
   "영문과 선배",
   "대륙동향",
